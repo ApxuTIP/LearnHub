@@ -50,15 +50,17 @@ BR7 Рекурсия, мемоизация -> Trajectories, BR7Trajectories -> O
 6. Все изменения фиксируются в журнале и могут быть откачены (BR1).
 
 ## Основная структура проекта
-
+```
 src/main/java/com/example/learnhub/
---------------------------Main.java
---------------------------model/ 
---------------------------Student, Course, Action
---------------------------structures/ 
---------------------------CustomLinkedList, CustomStack, CustomBST, CustomGraph
---------------------------algorithms/ 
---------------------------Sorting, Searching, Knapsack, IntervalScheduling, SlidingWindow, TwoSum, Trajectories
---------------------------br/ 
---------------------------BR1Journal - BR7Trajectories
---------------------------util/ DataGenerator, Timer
+-Main.java
+-model/ 
+--Student, Course, Action
+-structures/ 
+--CustomLinkedList, CustomStack, CustomBST, CustomGraph
+-algorithms/ 
+--Sorting, Searching, Knapsack, IntervalScheduling, SlidingWindow, TwoSum, Trajectories
+-br/ 
+--BR1Journal - BR7Trajectories
+-util/
+--DataGenerator, Timer
+```

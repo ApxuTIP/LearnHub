@@ -9,7 +9,7 @@ import java.util.List;
 
 public class BR3Rating {
 
-    private static final int ID_WEIGHT = 1_000_000;
+    private static final int ID_WEIGHT = 1000000;
 
     private final List<Student> sortedByScore = new ArrayList<>();
 

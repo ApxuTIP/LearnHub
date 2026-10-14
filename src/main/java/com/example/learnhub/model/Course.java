@@ -2,24 +2,24 @@ package com.example.learnhub.model;
 
 public class Course implements Comparable<Course> {
 
-    private final int id;
-    private final String title;
+    private final int courseId;
+    private final String courseTitle;
     private final int hours;
     private final int benefit;
 
-    public Course(int id, String title, int hours, int benefit) {
-        this.id = id;
-        this.title = title;
+    public Course(int courseId, String courseTitle, int hours, int benefit) {
+        this.courseId = courseId;
+        this.courseTitle = courseTitle;
         this.hours = hours;
         this.benefit = benefit;
     }
 
-    public int getId() {
-        return id;
+    public int getCourseId() {
+        return courseId;
     }
 
-    public String getTitle() {
-        return title;
+    public String getCourseTitle() {
+        return courseTitle;
     }
 
     public int getHours() {
@@ -32,14 +32,12 @@ public class Course implements Comparable<Course> {
 
     @Override
     public int compareTo(Course other) {
-        return Integer.compare(this.id, other.id);
+        return Integer.compare(this.courseId, other.courseId);
     }
 
     @Override
     public String toString() {
-        return "Course{id=" + id
-                + ", title='" + title + "'"
-                + ", hours=" + hours
-                + ", benefit=" + benefit + "}";
+        return String.format("Course{courseId=%d, courseTitle='%s', hours=%d, benefit=%d}",
+                courseId, courseTitle, hours, benefit);
     }
 }

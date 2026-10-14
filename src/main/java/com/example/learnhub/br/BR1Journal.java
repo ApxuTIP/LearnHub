@@ -1,6 +1,6 @@
 package com.example.learnhub.br;
 
-import com.example.learnhub.model.Action;
+import com.example.learnhub.model.Lesson;
 import com.example.learnhub.structures.CustomStack;
 
 import java.util.ArrayList;
@@ -8,37 +8,42 @@ import java.util.List;
 
 public class BR1Journal {
 
-    private final CustomStack<Action> history = new CustomStack<>();
+    private final CustomStack<Lesson> viewedLessons = new CustomStack<>();
 
-    public void record(Action action) {
-        history.push(action);
+    public void visitLesson(Lesson lesson) {
+        viewedLessons.push(lesson);
     }
 
-    public String undoLast() {
-        if (history.isEmpty()) {
+    public Lesson goBack() {
+        if (viewedLessons.isEmpty()) {
             return null;
         }
-        Action action = history.pop();
-        action.undo();
-        return action.getDescription();
+        return viewedLessons.pop();
+    }
+
+    public Lesson currentLesson() {
+        if (viewedLessons.isEmpty()) {
+            return null;
+        }
+        return viewedLessons.peek();
     }
 
     public int size() {
-        return history.size();
+        return viewedLessons.size();
     }
 
     public boolean isEmpty() {
-        return history.isEmpty();
+        return viewedLessons.isEmpty();
     }
 
     public void clear() {
-        history.clear();
+        viewedLessons.clear();
     }
 
     public List<String> snapshot() {
         List<String> result = new ArrayList<>();
-        for (Action action : history) {
-            result.add(action.getDescription());
+        for (Lesson lesson : viewedLessons) {
+            result.add(lesson.getLessonTitle());
         }
         return result;
     }

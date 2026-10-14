@@ -22,4 +22,8 @@ public class BR6Analytics {
     public TwoSum.Pair findPairClosest(List<Integer> scores, int target) {
         return TwoSum.findClosest(scores, target);
     }
+
+    public TwoSum.Pair findPairClosestNaive(List<Integer> scores, int target) {
+        return TwoSum.findClosestNaive(scores, target);
+    }
 }

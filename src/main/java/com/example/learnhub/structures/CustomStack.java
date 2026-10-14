@@ -8,18 +8,21 @@ public class CustomStack<T> implements Iterable<T> {
     private final CustomLinkedList<T> list = new CustomLinkedList<>();
 
     public void push(T value) {
-        list.addLast(value);
+        list.addFirst(value);
     }
 
     public T pop() {
         if (list.isEmpty()) {
             throw new NoSuchElementException("Стек пуст");
         }
-        return list.removeLast();
+        return list.removeFirst();
     }
 
     public T peek() {
-        return list.peekLast();
+        if (list.isEmpty()) {
+            throw new NoSuchElementException("Стек пуст");
+        }
+        return list.getFirst();
     }
 
     public boolean isEmpty() {

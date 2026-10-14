@@ -1,63 +1,69 @@
 package com.example.learnhub.algorithms;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
-import java.util.function.ToIntFunction;
 
 public final class Sorting {
+
+    private static final int ADAPTIVE_SORT_THRESHOLD = 32;
 
     private Sorting() {
     }
 
-    public static <T> void mergeSort(List<T> list, ToIntFunction<T> key) {
+    public static <T> void mergeSort(List<T> list, Comparator<T> comparator) {
         if (list.size() < 2) {
             return;
         }
         int middle = list.size() / 2;
         List<T> left = new ArrayList<>(list.subList(0, middle));
         List<T> right = new ArrayList<>(list.subList(middle, list.size()));
-        mergeSort(left, key);
-        mergeSort(right, key);
-        merge(list, left, right, key);
+        mergeSort(left, comparator);
+        mergeSort(right, comparator);
+        merge(list, left, right, comparator);
     }
 
-    private static <T> void merge(List<T> target, List<T> left, List<T> right, ToIntFunction<T> key) {
-        int i = 0;
-        int j = 0;
-        int k = 0;
-        while (i < left.size() && j < right.size()) {
-            if (key.applyAsInt(left.get(i)) <= key.applyAsInt(right.get(j))) {
-                target.set(k++, left.get(i++));
+    private static <T> void merge(
+            List<T> target,
+            List<T> left,
+            List<T> right,
+            Comparator<T> comparator) {
+        int leftIndex = 0;
+        int rightIndex = 0;
+        int targetIndex = 0;
+        while (leftIndex < left.size() && rightIndex < right.size()) {
+            if (comparator.compare(left.get(leftIndex), right.get(rightIndex)) <= 0) {
+                target.set(targetIndex++, left.get(leftIndex++));
             } else {
-                target.set(k++, right.get(j++));
+                target.set(targetIndex++, right.get(rightIndex++));
             }
         }
-        while (i < left.size()) {
-            target.set(k++, left.get(i++));
+        while (leftIndex < left.size()) {
+            target.set(targetIndex++, left.get(leftIndex++));
         }
-        while (j < right.size()) {
-            target.set(k++, right.get(j++));
+        while (rightIndex < right.size()) {
+            target.set(targetIndex++, right.get(rightIndex++));
         }
     }
 
-    public static <T> void insertionSort(List<T> list, ToIntFunction<T> key) {
-        for (int i = 1; i < list.size(); i++) {
-            T current = list.get(i);
-            int currentKey = key.applyAsInt(current);
-            int j = i - 1;
-            while (j >= 0 && key.applyAsInt(list.get(j)) > currentKey) {
-                list.set(j + 1, list.get(j));
-                j--;
+    public static <T> void insertionSort(List<T> list, Comparator<T> comparator) {
+        for (int index = 1; index < list.size(); index++) {
+            T current = list.get(index);
+            int insertPosition = index - 1;
+            while (insertPosition >= 0
+                    && comparator.compare(list.get(insertPosition), current) > 0) {
+                list.set(insertPosition + 1, list.get(insertPosition));
+                insertPosition--;
             }
-            list.set(j + 1, current);
+            list.set(insertPosition + 1, current);
         }
     }
 
-    public static <T> void adaptiveSort(List<T> list, ToIntFunction<T> key) {
-        if (list.size() < 32) {
-            insertionSort(list, key);
+    public static <T> void adaptiveSort(List<T> list, Comparator<T> comparator) {
+        if (list.size() < ADAPTIVE_SORT_THRESHOLD) {
+            insertionSort(list, comparator);
         } else {
-            mergeSort(list, key);
+            mergeSort(list, comparator);
         }
     }
 }

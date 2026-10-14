@@ -2,6 +2,8 @@ package com.example.learnhub.util;
 
 public final class Timer {
 
+    private static final long NANOS_PER_MILLISECOND = 1_000_000L;
+
     private Timer() {
     }
 
@@ -9,14 +11,26 @@ public final class Timer {
         long start = System.nanoTime();
         action.run();
         long elapsedNanos = System.nanoTime() - start;
-        long elapsedMillis = elapsedNanos / 1000000;
+        long elapsedMillis = elapsedNanos / NANOS_PER_MILLISECOND;
         System.out.println("  [" + label + "] выполнено за " + elapsedMillis
                 + " мс (" + elapsedNanos + " нс)");
         return elapsedMillis;
     }
 
-    public static void printComparison(String label, long firstMs, long secondMs) {
-        System.out.println("  [" + label + "] первый вариант: " + firstMs
-                + " мс, второй вариант: " + secondMs + " мс");
+    public static long measureSilent(Runnable action) {
+        long start = System.nanoTime();
+        action.run();
+        long elapsedNanos = System.nanoTime() - start;
+        return elapsedNanos / NANOS_PER_MILLISECOND;
+    }
+
+    public static void printComparison(String label,
+                                       String firstAlgorithm,
+                                       long firstMilliseconds,
+                                       String secondAlgorithm,
+                                       long secondMilliseconds) {
+        System.out.println("  [" + label + "] "
+                + firstAlgorithm + ": " + firstMilliseconds + " мс, "
+                + secondAlgorithm + ": " + secondMilliseconds + " мс");
     }
 }

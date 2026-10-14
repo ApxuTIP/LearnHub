@@ -1,6 +1,7 @@
 package com.example.learnhub.structures;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,12 +9,26 @@ import java.util.Map;
 public class CustomGraph {
 
     public static class Edge {
-        public final int to;
-        public final int weight;
 
-        public Edge(int to, int weight) {
-            this.to = to;
+        private final int destination;
+        private final int weight;
+
+        public Edge(int destination, int weight) {
+            this.destination = destination;
             this.weight = weight;
+        }
+
+        public int getDestination() {
+            return destination;
+        }
+
+        public int getWeight() {
+            return weight;
+        }
+
+        @Override
+        public String toString() {
+            return "Edge{destination=" + destination + ", weight=" + weight + "}";
         }
     }
 
@@ -33,19 +48,23 @@ public class CustomGraph {
         adjacency.get(from).add(new Edge(to, weight));
     }
 
-    public List<Edge> neighbors(int vertex) {
+    public List<Edge> getNeighbors(int vertex) {
         List<Edge> edges = adjacency.get(vertex);
         if (edges == null) {
-            return List.of();
+            return Collections.emptyList();
         }
-        return edges;
+        return Collections.unmodifiableList(edges);
     }
 
-    public List<Integer> vertices() {
-        return vertices;
+    public List<Integer> getVertices() {
+        return Collections.unmodifiableList(vertices);
     }
 
-    public int vertexCount() {
+    public int getVertexCount() {
         return vertices.size();
+    }
+
+    public boolean containsVertex(int vertex) {
+        return adjacency.containsKey(vertex);
     }
 }

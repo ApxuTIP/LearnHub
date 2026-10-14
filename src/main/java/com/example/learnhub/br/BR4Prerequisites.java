@@ -37,11 +37,12 @@ public class BR4Prerequisites {
 
         while (!queue.isEmpty()) {
             int current = queue.removeFirst();
-            for (CustomGraph.Edge edge : graph.neighbors(current)) {
-                if (!visited.contains(edge.to)) {
-                    visited.add(edge.to);
-                    order.add(edge.to);
-                    queue.addLast(edge.to);
+            for (CustomGraph.Edge edge : graph.getNeighbors(current)) {
+                int destination = edge.getDestination();
+                if (!visited.contains(destination)) {
+                    visited.add(destination);
+                    order.add(destination);
+                    queue.addLast(destination);
                 }
             }
         }
@@ -53,7 +54,7 @@ public class BR4Prerequisites {
         Set<Integer> visited = new HashSet<>();
         int tracks = 0;
 
-        for (int vertex : graph.vertices()) {
+        for (int vertex : graph.getVertices()) {
             if (visited.contains(vertex)) {
                 continue;
             }
@@ -80,11 +81,12 @@ public class BR4Prerequisites {
 
     private Map<Integer, List<Integer>> buildUndirectedAdjacency() {
         Map<Integer, List<Integer>> undirected = new HashMap<>();
-        for (int vertex : graph.vertices()) {
+        for (int vertex : graph.getVertices()) {
             undirected.computeIfAbsent(vertex, key -> new ArrayList<>());
-            for (CustomGraph.Edge edge : graph.neighbors(vertex)) {
-                undirected.computeIfAbsent(edge.to, key -> new ArrayList<>()).add(vertex);
-                undirected.get(vertex).add(edge.to);
+            for (CustomGraph.Edge edge : graph.getNeighbors(vertex)) {
+                int destination = edge.getDestination();
+                undirected.computeIfAbsent(destination, key -> new ArrayList<>()).add(vertex);
+                undirected.get(vertex).add(destination);
             }
         }
         return undirected;
@@ -93,41 +95,41 @@ public class BR4Prerequisites {
     public List<Integer> findCycle() {
         Map<Integer, Integer> color = new HashMap<>();
         Map<Integer, Integer> parent = new HashMap<>();
+        List<Integer> result = new ArrayList<>();
 
-        for (int vertex : graph.vertices()) {
+        for (int vertex : graph.getVertices()) {
             color.put(vertex, WHITE);
         }
-        for (int vertex : graph.vertices()) {
-            if (color.get(vertex) == WHITE) {
-                List<Integer> cycle = dfsFindCycle(vertex, color, parent);
-                if (!cycle.isEmpty()) {
-                    return cycle;
-                }
+        for (int vertex : graph.getVertices()) {
+            if (color.get(vertex) == WHITE && result.isEmpty()) {
+                result = dfsFindCycle(vertex, color, parent);
             }
         }
-        return List.of();
+        return result;
     }
 
     private List<Integer> dfsFindCycle(int vertex,
                                        Map<Integer, Integer> color,
                                        Map<Integer, Integer> parent) {
         color.put(vertex, GRAY);
-        for (CustomGraph.Edge edge : graph.neighbors(vertex)) {
-            int next = edge.to;
+        List<Integer> cycle = new ArrayList<>();
+        for (CustomGraph.Edge edge : graph.getNeighbors(vertex)) {
+            int next = edge.getDestination();
             Integer nextColor = color.getOrDefault(next, WHITE);
             if (nextColor == GRAY) {
-                return buildCyclePath(vertex, next, parent);
+                cycle = buildCyclePath(vertex, next, parent);
+                break;
             }
             if (nextColor == WHITE) {
                 parent.put(next, vertex);
-                List<Integer> cycle = dfsFindCycle(next, color, parent);
+                cycle = dfsFindCycle(next, color, parent);
                 if (!cycle.isEmpty()) {
-                    return cycle;
+                    break;
                 }
             }
         }
         color.put(vertex, BLACK);
-        return List.of();
+        return cycle;
     }
 
     private List<Integer> buildCyclePath(int from, int to, Map<Integer, Integer> parent) {
@@ -146,9 +148,9 @@ public class BR4Prerequisites {
         int left = 0;
         int right = path.size() - 1;
         while (left < right) {
-            Integer temp = path.get(left);
+            Integer temporary = path.get(left);
             path.set(left, path.get(right));
-            path.set(right, temp);
+            path.set(right, temporary);
             left++;
             right--;
         }
@@ -159,34 +161,33 @@ public class BR4Prerequisites {
         Map<Integer, Integer> distance = new HashMap<>();
         Set<Integer> settled = new HashSet<>();
 
-        for (int vertex : graph.vertices()) {
+        for (int vertex : graph.getVertices()) {
             distance.put(vertex, Integer.MAX_VALUE);
         }
         distance.put(sourceCourseId, 0);
 
-        PriorityQueue<int[]> queue = new PriorityQueue<>(
-                (first, second) -> Integer.compare(first[0], second[0]));
-        queue.add(new int[] {0, sourceCourseId});
+        PriorityQueue<VertexDistance> queue = new PriorityQueue<>();
+        queue.add(new VertexDistance(sourceCourseId, 0));
 
         while (!queue.isEmpty()) {
-            int[] top = queue.poll();
-            int currentDistance = top[0];
-            int currentVertex = top[1];
+            VertexDistance currentPair = queue.poll();
+            int currentVertex = currentPair.getVertex();
 
             if (settled.contains(currentVertex)) {
                 continue;
             }
             settled.add(currentVertex);
 
-            for (CustomGraph.Edge edge : graph.neighbors(currentVertex)) {
-                if (settled.contains(edge.to)) {
+            for (CustomGraph.Edge edge : graph.getNeighbors(currentVertex)) {
+                int destination = edge.getDestination();
+                if (settled.contains(destination)) {
                     continue;
                 }
-                int newDistance = currentDistance + edge.weight;
-                Integer known = distance.get(edge.to);
+                int newDistance = currentPair.getDistance() + edge.getWeight();
+                Integer known = distance.get(destination);
                 if (known == null || newDistance < known) {
-                    distance.put(edge.to, newDistance);
-                    queue.add(new int[] {newDistance, edge.to});
+                    distance.put(destination, newDistance);
+                    queue.add(new VertexDistance(destination, newDistance));
                 }
             }
         }
@@ -195,5 +196,29 @@ public class BR4Prerequisites {
 
     public CustomGraph getGraph() {
         return graph;
+    }
+
+    private static class VertexDistance implements Comparable<VertexDistance> {
+
+        private final int vertex;
+        private final int distance;
+
+        private VertexDistance(int vertex, int distance) {
+            this.vertex = vertex;
+            this.distance = distance;
+        }
+
+        private int getVertex() {
+            return vertex;
+        }
+
+        private int getDistance() {
+            return distance;
+        }
+
+        @Override
+        public int compareTo(VertexDistance other) {
+            return Integer.compare(this.distance, other.distance);
+        }
     }
 }

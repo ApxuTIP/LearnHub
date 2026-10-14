@@ -1,6 +1,8 @@
 package com.example.learnhub.algorithms;
 
 import java.math.BigInteger;
+import java.util.HashMap;
+import java.util.Map;
 
 public final class Trajectories {
 
@@ -11,42 +13,30 @@ public final class Trajectories {
         if (modules < 0) {
             return BigInteger.ZERO;
         }
-        if (modules == 0) {
+        if (modules == 0 || modules == 1) {
             return BigInteger.ONE;
         }
-        if (modules == 1) {
-            return BigInteger.ONE;
-        }
-        if (modules == 2) {
-            return BigInteger.TWO;
-        }
-        return naive(modules - 1)
-                .add(naive(modules - 2))
-                .add(naive(modules - 3));
+        return naive(modules - 1).add(naive(modules - 2));
     }
 
-    public static BigInteger dp(int modules) {
+    public static BigInteger countWithMemoization(int modules) {
         if (modules < 0) {
             return BigInteger.ZERO;
         }
-        if (modules == 0) {
-            return BigInteger.ONE;
+        Map<Integer, BigInteger> memo = new HashMap<>();
+        memo.put(0, BigInteger.ONE);
+        memo.put(1, BigInteger.ONE);
+        return computeWithMemo(modules, memo);
+    }
+
+    private static BigInteger computeWithMemo(int modules, Map<Integer, BigInteger> memo) {
+        BigInteger cached = memo.get(modules);
+        if (cached != null) {
+            return cached;
         }
-        if (modules == 1) {
-            return BigInteger.ONE;
-        }
-        if (modules == 2) {
-            return BigInteger.TWO;
-        }
-        BigInteger first = BigInteger.ONE;
-        BigInteger second = BigInteger.ONE;
-        BigInteger third = BigInteger.TWO;
-        for (int i = 3; i <= modules; i++) {
-            BigInteger next = first.add(second).add(third);
-            first = second;
-            second = third;
-            third = next;
-        }
-        return third;
+        BigInteger result = computeWithMemo(modules - 1, memo)
+                .add(computeWithMemo(modules - 2, memo));
+        memo.put(modules, result);
+        return result;
     }
 }

@@ -2,22 +2,22 @@ package com.example.learnhub.model;
 
 public class Student implements Comparable<Student> {
 
-    private final int id;
-    private final String name;
+    private final int studentId;
+    private final String studentName;
     private int score;
 
-    public Student(int id, String name, int score) {
-        this.id = id;
-        this.name = name;
+    public Student(int studentId, String studentName, int score) {
+        this.studentId = studentId;
+        this.studentName = studentName;
         this.score = score;
     }
 
-    public int getId() {
-        return id;
+    public int getStudentId() {
+        return studentId;
     }
 
-    public String getName() {
-        return name;
+    public String getStudentName() {
+        return studentName;
     }
 
     public int getScore() {
@@ -30,11 +30,12 @@ public class Student implements Comparable<Student> {
 
     @Override
     public int compareTo(Student other) {
-        return Integer.compare(this.id, other.id);
+        return Integer.compare(this.studentId, other.studentId);
     }
 
     @Override
     public String toString() {
-        return "Student{id=" + id + ", name= " + name + " , score=" + score + "}";
+        return String.format("Student{studentId=%d, studentName='%s', score=%d}",
+                studentId, studentName, score);
     }
 }

@@ -1,19 +1,24 @@
 package com.example.learnhub.algorithms;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public final class TwoSum {
 
+    private static final Comparator<Integer> BY_VALUE_ASC = Integer::compare;
+
     private TwoSum() {
     }
 
     public static class Pair {
-        public final int firstIndex;
-        public final int secondIndex;
-        public final int firstValue;
-        public final int secondValue;
+
+        private final int firstIndex;
+        private final int secondIndex;
+        private final int firstValue;
+        private final int secondValue;
 
         public Pair(int firstIndex, int secondIndex, int firstValue, int secondValue) {
             this.firstIndex = firstIndex;
@@ -22,37 +27,59 @@ public final class TwoSum {
             this.secondValue = secondValue;
         }
 
+        public int getFirstIndex() {
+            return firstIndex;
+        }
+
+        public int getSecondIndex() {
+            return secondIndex;
+        }
+
+        public int getFirstValue() {
+            return firstValue;
+        }
+
+        public int getSecondValue() {
+            return secondValue;
+        }
+
         @Override
         public String toString() {
-            return "(" + firstValue + " + " + secondValue
-                    + " = " + (firstValue + secondValue) + ")"
-                    + " [индексы " + firstIndex + ", " + secondIndex + "]";
+            return String.format("(%d + %d = %d) [индексы %d, %d]",
+                    firstValue, secondValue, firstValue + secondValue,
+                    firstIndex, secondIndex);
         }
     }
 
     public static Pair findExact(List<Integer> data, int target) {
         Map<Integer, Integer> seen = new HashMap<>();
-        for (int i = 0; i < data.size(); i++) {
-            int complement = target - data.get(i);
+        Pair result = null;
+        for (int index = 0; index < data.size() && result == null; index++) {
+            int complement = target - data.get(index);
             Integer previousIndex = seen.get(complement);
             if (previousIndex != null) {
-                return new Pair(previousIndex, i,
-                        data.get(previousIndex), data.get(i));
+                result = new Pair(previousIndex, index,
+                        data.get(previousIndex), data.get(index));
+            } else {
+                seen.put(data.get(index), index);
             }
-            seen.put(data.get(i), i);
         }
-        return null;
+        return result;
     }
 
     public static Pair findExactNaive(List<Integer> data, int target) {
-        for (int i = 0; i < data.size(); i++) {
-            for (int j = i + 1; j < data.size(); j++) {
-                if (data.get(i) + data.get(j) == target) {
-                    return new Pair(i, j, data.get(i), data.get(j));
+        Pair result = null;
+        for (int firstIndex = 0; firstIndex < data.size() && result == null; firstIndex++) {
+            for (int secondIndex = firstIndex + 1;
+                 secondIndex < data.size() && result == null;
+                 secondIndex++) {
+                if (data.get(firstIndex) + data.get(secondIndex) == target) {
+                    result = new Pair(firstIndex, secondIndex,
+                            data.get(firstIndex), data.get(secondIndex));
                 }
             }
         }
-        return null;
+        return result;
     }
 
     public static Pair findClosest(List<Integer> data, int target) {
@@ -61,25 +88,8 @@ public final class TwoSum {
             return null;
         }
 
-        int[] values = new int[count];
-        int[] originalIndices = new int[count];
-        for (int i = 0; i < count; i++) {
-            values[i] = data.get(i);
-            originalIndices[i] = i;
-        }
-
-        for (int i = 1; i < count; i++) {
-            int currentValue = values[i];
-            int currentIndex = originalIndices[i];
-            int j = i - 1;
-            while (j >= 0 && values[j] > currentValue) {
-                values[j + 1] = values[j];
-                originalIndices[j + 1] = originalIndices[j];
-                j--;
-            }
-            values[j + 1] = currentValue;
-            originalIndices[j + 1] = currentIndex;
-        }
+        List<Integer> sorted = new ArrayList<>(data);
+        Sorting.mergeSort(sorted, BY_VALUE_ASC);
 
         int left = 0;
         int right = count - 1;
@@ -87,12 +97,12 @@ public final class TwoSum {
         Pair best = null;
 
         while (left < right) {
-            int sum = values[left] + values[right];
+            int sum = sorted.get(left) + sorted.get(right);
             int difference = Math.abs(sum - target);
             if (difference < bestDifference) {
                 bestDifference = difference;
-                best = new Pair(originalIndices[left], originalIndices[right],
-                        values[left], values[right]);
+                best = new Pair(left, right,
+                        sorted.get(left), sorted.get(right));
             }
             if (sum < target) {
                 left++;
@@ -100,6 +110,29 @@ public final class TwoSum {
                 right--;
             } else {
                 break;
+            }
+        }
+        return best;
+    }
+
+    public static Pair findClosestNaive(List<Integer> data, int target) {
+        int count = data.size();
+        if (count < 2) {
+            return null;
+        }
+
+        int bestDifference = Integer.MAX_VALUE;
+        Pair best = null;
+
+        for (int firstIndex = 0; firstIndex < count; firstIndex++) {
+            for (int secondIndex = firstIndex + 1; secondIndex < count; secondIndex++) {
+                int sum = data.get(firstIndex) + data.get(secondIndex);
+                int difference = Math.abs(sum - target);
+                if (difference < bestDifference) {
+                    bestDifference = difference;
+                    best = new Pair(firstIndex, secondIndex,
+                            data.get(firstIndex), data.get(secondIndex));
+                }
             }
         }
         return best;

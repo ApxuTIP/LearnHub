@@ -7,25 +7,25 @@ import java.util.List;
 
 public class BR2Registry {
 
-    private final CustomBST<Integer, Student> byId = new CustomBST<>();
+    private final CustomBST<Integer, Student> studentsById = new CustomBST<>();
 
-    public void add(Student student) {
-        byId.put(student.getId(), student);
+    public void addStudent(Student student) {
+        studentsById.put(student.getStudentId(), student);
     }
 
-    public Student find(int id) {
-        return byId.get(id);
+    public Student findById(int studentId) {
+        return studentsById.get(studentId);
     }
 
-    public List<Student> allSorted() {
-        return byId.toSortedList();
+    public List<Student> getAllSortedById() {
+        return studentsById.toSortedList();
     }
 
-    public int size() {
-        return byId.size();
+    public int getStudentCount() {
+        return studentsById.size();
     }
 
-    public int treeHeight() {
-        return byId.height();
+    public int getTreeHeight() {
+        return studentsById.height();
     }
 }

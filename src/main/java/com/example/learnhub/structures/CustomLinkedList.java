@@ -7,7 +7,6 @@ public class CustomLinkedList<T> implements Iterable<T> {
 
     private static class Node<T> {
         T value;
-        Node<T> previous;
         Node<T> next;
 
         Node(T value) {
@@ -15,43 +14,31 @@ public class CustomLinkedList<T> implements Iterable<T> {
         }
     }
 
-    private Node<T> head;
-    private Node<T> tail;
+    private Node<T> first;
     private int size;
 
-    public void addLast(T value) {
+    public void addFirst(T value) {
         Node<T> node = new Node<>(value);
-        if (tail == null) {
-            head = node;
-            tail = node;
-        } else {
-            tail.next = node;
-            node.previous = tail;
-            tail = node;
-        }
+        node.next = first;
+        first = node;
         size++;
     }
 
-    public T removeLast() {
-        if (tail == null) {
+    public T removeFirst() {
+        if (first == null) {
             throw new NoSuchElementException("Список пуст");
         }
-        T value = tail.value;
-        tail = tail.previous;
-        if (tail == null) {
-            head = null;
-        } else {
-            tail.next = null;
-        }
+        T value = first.value;
+        first = first.next;
         size--;
         return value;
     }
 
-    public T peekLast() {
-        if (tail == null) {
-            return null;
+    public T getFirst() {
+        if (first == null) {
+            throw new NoSuchElementException("Список пуст");
         }
-        return tail.value;
+        return first.value;
     }
 
     public int size() {
@@ -63,15 +50,14 @@ public class CustomLinkedList<T> implements Iterable<T> {
     }
 
     public void clear() {
-        head = null;
-        tail = null;
+        first = null;
         size = 0;
     }
 
     @Override
     public Iterator<T> iterator() {
         return new Iterator<>() {
-            private Node<T> current = head;
+            private Node<T> current = first;
 
             @Override
             public boolean hasNext() {
@@ -80,6 +66,9 @@ public class CustomLinkedList<T> implements Iterable<T> {
 
             @Override
             public T next() {
+                if (current == null) {
+                    throw new NoSuchElementException("Элементы закончились");
+                }
                 T value = current.value;
                 current = current.next;
                 return value;

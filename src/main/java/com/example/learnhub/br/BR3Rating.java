@@ -5,49 +5,60 @@ import com.example.learnhub.algorithms.Sorting;
 import com.example.learnhub.model.Student;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class BR3Rating {
 
-    private static final int ID_WEIGHT = 1000000;
+    private static final Comparator<Student> BY_SCORE_DESC_THEN_ID_ASC =
+            (first, second) -> {
+                int scoreComparison = Integer.compare(second.getScore(), first.getScore());
+                if (scoreComparison != 0) {
+                    return scoreComparison;
+                }
+                return Integer.compare(first.getStudentId(), second.getStudentId());
+            };
 
     private final List<Student> sortedByScore = new ArrayList<>();
 
     public void rebuild(List<Student> students) {
         sortedByScore.clear();
         sortedByScore.addAll(students);
-        Sorting.mergeSort(sortedByScore, this::scoreKey);
-    }
-
-    private int scoreKey(Student student) {
-        return -student.getScore() * ID_WEIGHT + student.getId();
+        Sorting.mergeSort(sortedByScore, BY_SCORE_DESC_THEN_ID_ASC);
     }
 
     public int placeOf(Student target) {
-        int index = Searching.binarySearch(sortedByScore, this::scoreKey, scoreKey(target));
-        if (index < 0) {
-            return -1;
+        int index = Searching.binarySearch(sortedByScore, BY_SCORE_DESC_THEN_ID_ASC, target);
+        int place = -1;
+        if (index >= 0) {
+            place = index + 1;
         }
-        return index + 1;
+        return place;
     }
 
     public List<Student> inScoreRange(int low, int high) {
-        int fromKey = -high * ID_WEIGHT;
-        int toKey = -low * ID_WEIGHT + (ID_WEIGHT - 1);
-        return Searching.rangeQuery(sortedByScore, this::scoreKey, fromKey, toKey);
+        List<Student> result = new ArrayList<>();
+        for (Student student : sortedByScore) {
+            int score = student.getScore();
+            if (score < low) {
+                break;
+            }
+            if (score <= high) {
+                result.add(student);
+            }
+        }
+        return result;
     }
 
     public Student firstAtLeast(int threshold) {
-        int fromKey = -threshold * ID_WEIGHT + (ID_WEIGHT - 1);
-        int index = Searching.lowerBound(sortedByScore, this::scoreKey, fromKey);
-        while (index < sortedByScore.size()
-                && sortedByScore.get(index).getScore() < threshold) {
-            index++;
+        Student result = null;
+        if (!sortedByScore.isEmpty()) {
+            Student highest = sortedByScore.get(0);
+            if (highest.getScore() >= threshold) {
+                result = highest;
+            }
         }
-        if (index >= sortedByScore.size()) {
-            return null;
-        }
-        return sortedByScore.get(index);
+        return result;
     }
 
     public List<Student> all() {

@@ -11,6 +11,6 @@ public class BR7Trajectories {
     }
 
     public BigInteger countOptimized(int modules) {
-        return Trajectories.dp(modules);
+        return Trajectories.countWithMemoization(modules);
     }
 }

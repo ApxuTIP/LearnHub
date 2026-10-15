@@ -3,42 +3,37 @@ package com.example.learnhub.structures;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public class CustomStack<T> implements Iterable<T> {
-
-    private final CustomLinkedList<T> list = new CustomLinkedList<>();
+public class Stack<T> implements Iterable<T> {
+    private final LinkedList<T> elements = new LinkedList<>();
 
     public void push(T value) {
-        list.addFirst(value);
+        elements.addFirst(value);
     }
 
     public T pop() {
-        if (list.isEmpty()) {
+        if (elements.isEmpty()) {
             throw new NoSuchElementException("Стек пуст");
         }
-        return list.removeFirst();
+        return elements.removeFirst();
     }
 
     public T peek() {
-        if (list.isEmpty()) {
+        if (elements.isEmpty()) {
             throw new NoSuchElementException("Стек пуст");
         }
-        return list.getFirst();
+        return elements.getFirst();
     }
 
     public boolean isEmpty() {
-        return list.isEmpty();
+        return elements.isEmpty();
     }
 
     public int size() {
-        return list.size();
-    }
-
-    public void clear() {
-        list.clear();
+        return elements.size();
     }
 
     @Override
     public Iterator<T> iterator() {
-        return list.iterator();
+        return elements.iterator();
     }
 }

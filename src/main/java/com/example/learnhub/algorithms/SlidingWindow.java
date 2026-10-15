@@ -3,7 +3,6 @@ package com.example.learnhub.algorithms;
 import java.util.List;
 
 public final class SlidingWindow {
-
     private SlidingWindow() {
     }
 
@@ -11,12 +10,12 @@ public final class SlidingWindow {
 
         private final int startIndex;
         private final int endIndex;
-        private final long sum;
+        private final long windowSum;
 
-        public WindowResult(int startIndex, int endIndex, long sum) {
+        public WindowResult(int startIndex, int endIndex, long windowSum) {
             this.startIndex = startIndex;
             this.endIndex = endIndex;
-            this.sum = sum;
+            this.windowSum = windowSum;
         }
 
         public int getStartIndex() {
@@ -27,13 +26,14 @@ public final class SlidingWindow {
             return endIndex;
         }
 
-        public long getSum() {
-            return sum;
+        public long getWindowSum() {
+            return windowSum;
         }
 
         @Override
         public String toString() {
-            return String.format("окно [%d..%d], сумма = %d", startIndex, endIndex, sum);
+            return "окно [" + startIndex + ".." + endIndex
+                    + "], сумма = " + windowSum;
         }
     }
 
@@ -41,38 +41,52 @@ public final class SlidingWindow {
         if (windowSize <= 0 || windowSize > data.size()) {
             throw new IllegalArgumentException("Некорректный размер окна: " + windowSize);
         }
-        long sum = 0;
+
+        long windowSum = 0;
         for (int index = 0; index < windowSize; index++) {
-            sum += data.get(index);
+            windowSum += data.get(index);
         }
-        long best = sum;
-        int bestStart = 0;
+
+        long bestWindowSum = windowSum;
+        int bestStartIndex = 0;
+
         for (int index = windowSize; index < data.size(); index++) {
-            sum += data.get(index) - data.get(index - windowSize);
-            if (sum > best) {
-                best = sum;
-                bestStart = index - windowSize + 1;
+            windowSum += data.get(index) - data.get(index - windowSize);
+            if (windowSum > bestWindowSum) {
+                bestWindowSum = windowSum;
+                bestStartIndex = index - windowSize + 1;
             }
         }
-        return new WindowResult(bestStart, bestStart + windowSize - 1, best);
+
+        return new WindowResult(bestStartIndex,
+                bestStartIndex + windowSize - 1,
+                bestWindowSum);
     }
 
     public static WindowResult maxSumWindowNaive(List<Integer> data, int windowSize) {
         if (windowSize <= 0 || windowSize > data.size()) {
             throw new IllegalArgumentException("Некорректный размер окна: " + windowSize);
         }
-        long best = Long.MIN_VALUE;
-        int bestStart = 0;
-        for (int startIndex = 0; startIndex + windowSize <= data.size(); startIndex++) {
-            long sum = 0;
+
+        long bestWindowSum = Long.MIN_VALUE;
+        int bestStartIndex = 0;
+
+        for (int startIndex = 0;
+             startIndex + windowSize <= data.size();
+             startIndex++) {
+            long windowSum = 0;
             for (int offset = 0; offset < windowSize; offset++) {
-                sum += data.get(startIndex + offset);
+                windowSum += data.get(startIndex + offset);
             }
-            if (sum > best) {
-                best = sum;
-                bestStart = startIndex;
+
+            if (windowSum > bestWindowSum) {
+                bestWindowSum = windowSum;
+                bestStartIndex = startIndex;
             }
         }
-        return new WindowResult(bestStart, bestStart + windowSize - 1, best);
+
+        return new WindowResult(bestStartIndex,
+                bestStartIndex + windowSize - 1,
+                bestWindowSum);
     }
 }

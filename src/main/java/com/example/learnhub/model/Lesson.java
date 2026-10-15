@@ -1,7 +1,6 @@
 package com.example.learnhub.model;
 
 public class Lesson {
-
     private final int lessonId;
     private final String lessonTitle;
 
@@ -20,6 +19,6 @@ public class Lesson {
 
     @Override
     public String toString() {
-        return "Lesson{id=" + lessonId + ", title=" + lessonTitle + "}";
+        return "Lesson{lessonId=" + lessonId + ", lessonTitle='" + lessonTitle + "'}";
     }
 }

@@ -6,15 +6,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public final class TwoSum {
-
+public final class ClosestPairFinder {
     private static final Comparator<Integer> BY_VALUE_ASC = Integer::compare;
 
-    private TwoSum() {
+    private ClosestPairFinder() {
     }
 
     public static class Pair {
-
         private final int firstIndex;
         private final int secondIndex;
         private final int firstValue;
@@ -45,9 +43,9 @@ public final class TwoSum {
 
         @Override
         public String toString() {
-            return String.format("(%d + %d = %d) [индексы %d, %d]",
-                    firstValue, secondValue, firstValue + secondValue,
-                    firstIndex, secondIndex);
+            return "(" + firstValue + " + " + secondValue
+                    + " = " + (firstValue + secondValue) + ")"
+                    + " [индексы " + firstIndex + ", " + secondIndex + "]";
         }
     }
 
@@ -60,7 +58,9 @@ public final class TwoSum {
             if (previousIndex != null) {
                 result = new Pair(previousIndex, index,
                         data.get(previousIndex), data.get(index));
-            } else {
+            }
+
+            else {
                 seen.put(data.get(index), index);
             }
         }
@@ -87,10 +87,8 @@ public final class TwoSum {
         if (count < 2) {
             return null;
         }
-
         List<Integer> sorted = new ArrayList<>(data);
-        Sorting.mergeSort(sorted, BY_VALUE_ASC);
-
+        Sorter.mergeSort(sorted, BY_VALUE_ASC);
         int left = 0;
         int right = count - 1;
         int bestDifference = Integer.MAX_VALUE;
@@ -104,11 +102,16 @@ public final class TwoSum {
                 best = new Pair(left, right,
                         sorted.get(left), sorted.get(right));
             }
+
             if (sum < target) {
                 left++;
-            } else if (sum > target) {
+            }
+
+            else if (sum > target) {
                 right--;
-            } else {
+            }
+
+            else {
                 break;
             }
         }

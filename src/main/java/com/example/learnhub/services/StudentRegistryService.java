@@ -1,13 +1,12 @@
-package com.example.learnhub.br;
+package com.example.learnhub.services;
 
 import com.example.learnhub.model.Student;
-import com.example.learnhub.structures.CustomBST;
+import com.example.learnhub.structures.BinarySearchTree;
 
 import java.util.List;
 
-public class BR2Registry {
-
-    private final CustomBST<Integer, Student> studentsById = new CustomBST<>();
+public class StudentRegistryService {
+    private final BinarySearchTree<Integer, Student> studentsById = new BinarySearchTree<>();
 
     public void addStudent(Student student) {
         studentsById.put(student.getStudentId(), student);

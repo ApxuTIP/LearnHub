@@ -1,7 +1,6 @@
 package com.example.learnhub.model;
 
 public class Course implements Comparable<Course> {
-
     private final int courseId;
     private final String courseTitle;
     private final int hours;
@@ -31,13 +30,15 @@ public class Course implements Comparable<Course> {
     }
 
     @Override
-    public int compareTo(Course other) {
-        return Integer.compare(this.courseId, other.courseId);
+    public int compareTo(Course otherCourse) {
+        return Integer.compare(this.courseId, otherCourse.courseId);
     }
 
     @Override
     public String toString() {
-        return String.format("Course{courseId=%d, courseTitle='%s', hours=%d, benefit=%d}",
-                courseId, courseTitle, hours, benefit);
+        return "Course{courseId=" + courseId
+                + ", courseTitle='" + courseTitle + "'"
+                + ", hours=" + hours
+                + ", benefit=" + benefit + "}";
     }
 }

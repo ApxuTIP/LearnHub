@@ -6,8 +6,7 @@ import java.util.Deque;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class CustomBST<K extends Comparable<K>, V> {
-
+public class BinarySearchTree<K extends Comparable<K>, V> {
     private static class Node<K, V> {
         private K key;
         private V value;
@@ -20,6 +19,18 @@ public class CustomBST<K extends Comparable<K>, V> {
         }
     }
 
+    private static class ValueCollector<T> implements Consumer<T> {
+        private final List<T> collectedValues;
+        private ValueCollector(List<T> collectedValues) {
+            this.collectedValues = collectedValues;
+        }
+
+        @Override
+        public void accept(T value) {
+            collectedValues.add(value);
+        }
+    }
+
     private Node<K, V> root;
     private int size;
 
@@ -29,46 +40,57 @@ public class CustomBST<K extends Comparable<K>, V> {
             size++;
             return;
         }
-
-        Node<K, V> current = root;
+        Node<K, V> currentNode = root;
         boolean inserted = false;
         while (!inserted) {
-            int comparison = key.compareTo(current.key);
+            int comparison = key.compareTo(currentNode.key);
             if (comparison < 0) {
-                if (current.left == null) {
-                    current.left = new Node<>(key, value);
+                if (currentNode.left == null) {
+                    currentNode.left = new Node<>(key, value);
                     size++;
                     inserted = true;
-                } else {
-                    current = current.left;
                 }
-            } else if (comparison > 0) {
-                if (current.right == null) {
-                    current.right = new Node<>(key, value);
+
+                else {
+                    currentNode = currentNode.left;
+                }
+            }
+
+            else if (comparison > 0) {
+                if (currentNode.right == null) {
+                    currentNode.right = new Node<>(key, value);
                     size++;
                     inserted = true;
-                } else {
-                    current = current.right;
                 }
-            } else {
-                current.value = value;
+
+                else {
+                    currentNode = currentNode.right;
+                }
+            }
+
+            else {
+                currentNode.value = value;
                 inserted = true;
             }
         }
     }
 
     public V get(K key) {
-        Node<K, V> current = root;
+        Node<K, V> currentNode = root;
         V result = null;
         boolean found = false;
-        while (current != null && !found) {
-            int comparison = key.compareTo(current.key);
+        while (currentNode != null && !found) {
+            int comparison = key.compareTo(currentNode.key);
             if (comparison < 0) {
-                current = current.left;
-            } else if (comparison > 0) {
-                current = current.right;
-            } else {
-                result = current.value;
+                currentNode = currentNode.left;
+            }
+
+            else if (comparison > 0) {
+                currentNode = currentNode.right;
+            }
+
+            else {
+                result = currentNode.value;
                 found = true;
             }
         }
@@ -77,21 +99,21 @@ public class CustomBST<K extends Comparable<K>, V> {
 
     public void inOrder(Consumer<V> visitor) {
         Deque<Node<K, V>> stack = new ArrayDeque<>();
-        Node<K, V> current = root;
-        while (current != null || !stack.isEmpty()) {
-            while (current != null) {
-                stack.addLast(current);
-                current = current.left;
+        Node<K, V> currentNode = root;
+        while (currentNode != null || !stack.isEmpty()) {
+            while (currentNode != null) {
+                stack.addLast(currentNode);
+                currentNode = currentNode.left;
             }
-            Node<K, V> node = stack.removeLast();
-            visitor.accept(node.value);
-            current = node.right;
+            Node<K, V> visitedNode = stack.removeLast();
+            visitor.accept(visitedNode.value);
+            currentNode = visitedNode.right;
         }
     }
 
     public List<V> toSortedList() {
         List<V> result = new ArrayList<>();
-        inOrder(result::add);
+        inOrder(new ValueCollector<>(result));
         return result;
     }
 
@@ -113,17 +135,19 @@ public class CustomBST<K extends Comparable<K>, V> {
         depths.addLast(1);
         int maximumDepth = 0;
         while (!nodes.isEmpty()) {
-            Node<K, V> node = nodes.removeLast();
+            Node<K, V> currentNode = nodes.removeLast();
             int depth = depths.removeLast();
             if (depth > maximumDepth) {
                 maximumDepth = depth;
             }
-            if (node.left != null) {
-                nodes.addLast(node.left);
+
+            if (currentNode.left != null) {
+                nodes.addLast(currentNode.left);
                 depths.addLast(depth + 1);
             }
-            if (node.right != null) {
-                nodes.addLast(node.right);
+
+            if (currentNode.right != null) {
+                nodes.addLast(currentNode.right);
                 depths.addLast(depth + 1);
             }
         }

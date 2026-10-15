@@ -6,10 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CustomGraph {
-
+public class Graph {
     public static class Edge {
-
         private final int destination;
         private final int weight;
 
@@ -42,10 +40,10 @@ public class CustomGraph {
         }
     }
 
-    public void addEdge(int from, int to, int weight) {
-        addVertex(from);
-        addVertex(to);
-        adjacency.get(from).add(new Edge(to, weight));
+    public void addEdge(int sourceVertex, int destinationVertex, int weight) {
+        addVertex(sourceVertex);
+        addVertex(destinationVertex);
+        adjacency.get(sourceVertex).add(new Edge(destinationVertex, weight));
     }
 
     public List<Edge> getNeighbors(int vertex) {
@@ -64,7 +62,11 @@ public class CustomGraph {
         return vertices.size();
     }
 
-    public boolean containsVertex(int vertex) {
-        return adjacency.containsKey(vertex);
+    public int getEdgeCount() {
+        int edgeCount = 0;
+        for (List<Edge> edges : adjacency.values()) {
+            edgeCount += edges.size();
+        }
+        return edgeCount;
     }
 }

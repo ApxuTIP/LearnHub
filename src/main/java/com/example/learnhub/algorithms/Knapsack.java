@@ -7,55 +7,55 @@ import java.util.Comparator;
 import java.util.List;
 
 public final class Knapsack {
-
-    private static final Comparator<Course> BY_BENEFIT_PER_HOUR_DESC =
-            (first, second) -> {
-                double firstRatio = (double) first.getBenefit() / first.getHours();
-                double secondRatio = (double) second.getBenefit() / second.getHours();
-                return Double.compare(secondRatio, firstRatio);
-            };
+    private static class ByBenefitPerHourDescendingComparator implements Comparator<Course> {
+        @Override
+        public int compare(Course firstCourse, Course secondCourse) {
+            double firstRatio = (double) firstCourse.getBenefit() / firstCourse.getHours();
+            double secondRatio = (double) secondCourse.getBenefit() / secondCourse.getHours();
+            return Double.compare(secondRatio, firstRatio);
+        }
+    }
 
     private Knapsack() {
     }
 
     public static List<Course> solveOptimal(List<Course> courses, int maxHours) {
-        int count = courses.size();
-        int[][] bestUsefulness = new int[count + 1][maxHours + 1];
-
-        for (int itemIndex = 1; itemIndex <= count; itemIndex++) {
+        int courseCount = courses.size();
+        int[][] bestUsefulness = new int[courseCount + 1][maxHours + 1];
+        for (int itemIndex = 1; itemIndex <= courseCount; itemIndex++) {
             Course course = courses.get(itemIndex - 1);
             for (int hours = 0; hours <= maxHours; hours++) {
                 bestUsefulness[itemIndex][hours] = bestUsefulness[itemIndex - 1][hours];
                 if (course.getHours() <= hours) {
-                    int withoutCourse = bestUsefulness[itemIndex - 1][hours];
-                    int withCourse = bestUsefulness[itemIndex - 1][hours - course.getHours()]
-                            + course.getBenefit();
-                    if (withCourse > withoutCourse) {
-                        bestUsefulness[itemIndex][hours] = withCourse;
+                    int usefulnessWithoutCourse = bestUsefulness[itemIndex - 1][hours];
+                    int usefulnessWithCourse = bestUsefulness[itemIndex - 1][hours - course.getHours()] + course.getBenefit();
+                    if (usefulnessWithCourse > usefulnessWithoutCourse) {
+                        bestUsefulness[itemIndex][hours] = usefulnessWithCourse;
                     }
                 }
             }
         }
 
         List<Course> result = new ArrayList<>();
-        int hours = maxHours;
-        for (int itemIndex = count; itemIndex > 0; itemIndex--) {
-            if (bestUsefulness[itemIndex][hours] != bestUsefulness[itemIndex - 1][hours]) {
+        int remainingHours = maxHours;
+        for (int itemIndex = courseCount; itemIndex > 0; itemIndex--) {
+            if (bestUsefulness[itemIndex][remainingHours]
+                    != bestUsefulness[itemIndex - 1][remainingHours]) {
                 Course course = courses.get(itemIndex - 1);
                 result.add(course);
-                hours -= course.getHours();
+                remainingHours -= course.getHours();
             }
         }
         return result;
     }
 
     public static List<Course> solveGreedy(List<Course> courses, int maxHours) {
-        List<Course> sorted = new ArrayList<>(courses);
-        Sorting.mergeSort(sorted, BY_BENEFIT_PER_HOUR_DESC);
+        List<Course> sortedCourses = new ArrayList<>(courses);
+        Sorter.mergeSort(sortedCourses, new ByBenefitPerHourDescendingComparator());
 
         List<Course> result = new ArrayList<>();
         int remainingHours = maxHours;
-        for (Course course : sorted) {
+        for (Course course : sortedCourses) {
             if (course.getHours() <= remainingHours) {
                 result.add(course);
                 remainingHours -= course.getHours();
@@ -65,18 +65,18 @@ public final class Knapsack {
     }
 
     public static int totalBenefit(List<Course> courses) {
-        int sum = 0;
+        int benefitSum = 0;
         for (Course course : courses) {
-            sum += course.getBenefit();
+            benefitSum += course.getBenefit();
         }
-        return sum;
+        return benefitSum;
     }
 
     public static int totalHours(List<Course> courses) {
-        int sum = 0;
+        int hoursSum = 0;
         for (Course course : courses) {
-            sum += course.getHours();
+            hoursSum += course.getHours();
         }
-        return sum;
+        return hoursSum;
     }
 }

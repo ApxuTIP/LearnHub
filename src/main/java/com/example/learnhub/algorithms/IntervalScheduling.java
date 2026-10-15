@@ -5,15 +5,10 @@ import java.util.Comparator;
 import java.util.List;
 
 public final class IntervalScheduling {
-
-    private static final Comparator<Interval> BY_END_ASC =
-            (first, second) -> Integer.compare(first.getEnd(), second.getEnd());
-
     private IntervalScheduling() {
     }
 
     public static class Interval {
-
         private final int start;
         private final int end;
         private final String label;
@@ -38,14 +33,20 @@ public final class IntervalScheduling {
 
         @Override
         public String toString() {
-            return String.format("[%d..%d] %s", start, end, label);
+            return "[" + start + ".." + end + "] " + label;
+        }
+    }
+
+    private static class ByEndAscendingComparator implements Comparator<Interval> {
+        @Override
+        public int compare(Interval firstInterval, Interval secondInterval) {
+            return Integer.compare(firstInterval.getEnd(), secondInterval.getEnd());
         }
     }
 
     public static List<Interval> selectMax(List<Interval> intervals) {
         List<Interval> sorted = new ArrayList<>(intervals);
-        Sorting.mergeSort(sorted, BY_END_ASC);
-
+        Sorter.mergeSort(sorted, new ByEndAscendingComparator());
         List<Interval> result = new ArrayList<>();
         int lastEnd = Integer.MIN_VALUE;
         for (Interval interval : sorted) {

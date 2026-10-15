@@ -3,13 +3,12 @@ package com.example.learnhub.structures;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public class CustomLinkedList<T> implements Iterable<T> {
-
+public class LinkedList<T> implements Iterable<T> {
     private static class Node<T> {
-        T value;
-        Node<T> next;
+        private T value;
+        private Node<T> next;
 
-        Node(T value) {
+        private Node(T value) {
             this.value = value;
         }
     }
@@ -18,9 +17,9 @@ public class CustomLinkedList<T> implements Iterable<T> {
     private int size;
 
     public void addFirst(T value) {
-        Node<T> node = new Node<>(value);
-        node.next = first;
-        first = node;
+        Node<T> newNode = new Node<>(value);
+        newNode.next = first;
+        first = newNode;
         size++;
     }
 
@@ -49,28 +48,23 @@ public class CustomLinkedList<T> implements Iterable<T> {
         return size == 0;
     }
 
-    public void clear() {
-        first = null;
-        size = 0;
-    }
-
     @Override
     public Iterator<T> iterator() {
-        return new Iterator<>() {
-            private Node<T> current = first;
+        return new Iterator<T>() {
+            private Node<T> currentNode = first;
 
             @Override
             public boolean hasNext() {
-                return current != null;
+                return currentNode != null;
             }
 
             @Override
             public T next() {
-                if (current == null) {
+                if (currentNode == null) {
                     throw new NoSuchElementException("Элементы закончились");
                 }
-                T value = current.value;
-                current = current.next;
+                T value = currentNode.value;
+                currentNode = currentNode.next;
                 return value;
             }
         };

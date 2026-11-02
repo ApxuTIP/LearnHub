@@ -7,30 +7,30 @@ import java.util.List;
 import java.util.Map;
 
 public final class ClosestPairFinder {
-    private static final Comparator<Integer> BY_VALUE_ASC = Integer::compare;
 
     private ClosestPairFinder() {
     }
 
+    private static class IntegerAscendingComparator implements Comparator<Integer> {
+        @Override
+        public int compare(Integer firstValue, Integer secondValue) {
+            return Integer.compare(firstValue, secondValue);
+        }
+    }
+
+    private static final Comparator<Integer> BY_VALUE_ASCENDING = new IntegerAscendingComparator();
+
     public static class Pair {
-        private final int firstIndex;
-        private final int secondIndex;
         private final int firstValue;
         private final int secondValue;
+        private final int firstIndex;
+        private final int secondIndex;
 
         public Pair(int firstIndex, int secondIndex, int firstValue, int secondValue) {
             this.firstIndex = firstIndex;
             this.secondIndex = secondIndex;
             this.firstValue = firstValue;
             this.secondValue = secondValue;
-        }
-
-        public int getFirstIndex() {
-            return firstIndex;
-        }
-
-        public int getSecondIndex() {
-            return secondIndex;
         }
 
         public int getFirstValue() {
@@ -44,8 +44,7 @@ public final class ClosestPairFinder {
         @Override
         public String toString() {
             return "(" + firstValue + " + " + secondValue
-                    + " = " + (firstValue + secondValue) + ")"
-                    + " [индексы " + firstIndex + ", " + secondIndex + "]";
+                    + " = " + (firstValue + secondValue) + ")";
         }
     }
 
@@ -58,9 +57,7 @@ public final class ClosestPairFinder {
             if (previousIndex != null) {
                 result = new Pair(previousIndex, index,
                         data.get(previousIndex), data.get(index));
-            }
-
-            else {
+            } else {
                 seen.put(data.get(index), index);
             }
         }
@@ -87,8 +84,10 @@ public final class ClosestPairFinder {
         if (count < 2) {
             return null;
         }
+
         List<Integer> sorted = new ArrayList<>(data);
-        Sorter.mergeSort(sorted, BY_VALUE_ASC);
+        Sorter.mergeSort(sorted, BY_VALUE_ASCENDING);
+
         int left = 0;
         int right = count - 1;
         int bestDifference = Integer.MAX_VALUE;
@@ -105,13 +104,9 @@ public final class ClosestPairFinder {
 
             if (sum < target) {
                 left++;
-            }
-
-            else if (sum > target) {
+            } else if (sum > target) {
                 right--;
-            }
-
-            else {
+            } else {
                 break;
             }
         }

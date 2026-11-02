@@ -9,27 +9,32 @@ import java.util.Comparator;
 import java.util.List;
 
 public class RatingService {
-    private final List<Student> sortedByScore = new ArrayList<>();
     private static class ByScoreDescendingThenIdAscendingComparator implements Comparator<Student> {
+
         @Override
         public int compare(Student firstStudent, Student secondStudent) {
-            int scoreComparison = Integer.compare(secondStudent.getScore(), firstStudent.getScore());
+            int scoreComparison = Integer.compare(
+                    secondStudent.getScore(), firstStudent.getScore());
             if (scoreComparison != 0) {
                 return scoreComparison;
             }
-            return Integer.compare(firstStudent.getStudentId(), secondStudent.getStudentId());
+            return Integer.compare(
+                    firstStudent.getStudentId(), secondStudent.getStudentId());
         }
     }
+
+    private final List<Student> sortedByScore = new ArrayList<>();
+    private final Comparator<Student> comparator = new ByScoreDescendingThenIdAscendingComparator();
 
     public void rebuild(List<Student> students) {
         sortedByScore.clear();
         sortedByScore.addAll(students);
-        Sorter.mergeSort(sortedByScore, new ByScoreDescendingThenIdAscendingComparator());
+        Sorter.mergeSort(sortedByScore, comparator);
     }
 
     public int placeOf(Student targetStudent) {
-        int index = BinarySearch.binarySearch(sortedByScore, new ByScoreDescendingThenIdAscendingComparator(), targetStudent);
-        int place = -1;
+        int index = BinarySearch.binarySearch(sortedByScore, comparator, targetStudent);
+        int place = BinarySearch.NOT_FOUND;
         if (index >= 0) {
             place = index + 1;
         }
@@ -37,29 +42,30 @@ public class RatingService {
     }
 
     public List<Student> inScoreRange(int minimumScore, int maximumScore) {
-        List<Student> result = new ArrayList<>();
-        for (Student student : sortedByScore) {
-            int score = student.getScore();
-            if (score < minimumScore) {
-                break;
-            }
-
-            if (score <= maximumScore) {
-                result.add(student);
-            }
+        if (minimumScore > maximumScore) {
+            return new ArrayList<>();
         }
-        return result;
+
+        Student maxBoundStudent = new Student(Integer.MIN_VALUE, "", maximumScore);
+        Student minBoundStudent = new Student(Integer.MAX_VALUE, "", minimumScore);
+
+        int startIndex = BinarySearch.lowerBound(sortedByScore, comparator, maxBoundStudent);
+        int endIndex = BinarySearch.upperBound(sortedByScore, comparator, minBoundStudent);
+
+        if (startIndex >= endIndex) {
+            return new ArrayList<>();
+        }
+        return new ArrayList<>(sortedByScore.subList(startIndex, endIndex));
     }
 
     public Student firstAtLeast(int threshold) {
-        Student firstStudent = null;
-        if (!sortedByScore.isEmpty()) {
-            Student highest = sortedByScore.get(0);
-            if (highest.getScore() >= threshold) {
-                firstStudent = highest;
-            }
+        Student thresholdStudent = new Student(Integer.MAX_VALUE, "", threshold);
+        int index = BinarySearch.lowerBound(sortedByScore, comparator, thresholdStudent);
+
+        if (index < sortedByScore.size() && sortedByScore.get(index).getScore() >= threshold) {
+            return sortedByScore.get(index);
         }
-        return firstStudent;
+        return null;
     }
 
     public List<Student> getAll() {

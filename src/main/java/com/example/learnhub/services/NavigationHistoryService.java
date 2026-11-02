@@ -1,14 +1,13 @@
 package com.example.learnhub.services;
 
 import com.example.learnhub.model.Lesson;
-import com.example.learnhub.structures.Stack;
+import com.example.learnhub.structures.CustomStack;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class NavigationHistoryService {
-    private final Stack<Lesson> viewedLessons = new Stack<>();
-
+    private final CustomStack<Lesson> viewedLessons = new CustomStack<>();
     public void visitLesson(Lesson lesson) {
         viewedLessons.push(lesson);
     }
@@ -16,7 +15,10 @@ public class NavigationHistoryService {
     public Lesson goBack() {
         Lesson previousLesson = null;
         if (!viewedLessons.isEmpty()) {
-            previousLesson = viewedLessons.pop();
+            viewedLessons.pop();
+            if (!viewedLessons.isEmpty()) {
+                previousLesson = viewedLessons.peek();
+            }
         }
         return previousLesson;
     }

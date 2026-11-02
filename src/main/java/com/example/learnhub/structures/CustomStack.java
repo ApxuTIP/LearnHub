@@ -3,8 +3,8 @@ package com.example.learnhub.structures;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public class Stack<T> implements Iterable<T> {
-    private final LinkedList<T> elements = new LinkedList<>();
+public class CustomStack<T> implements Iterable<T> {
+    private final CustomLinkedList<T> elements = new CustomLinkedList<>();
 
     public void push(T value) {
         elements.addFirst(value);

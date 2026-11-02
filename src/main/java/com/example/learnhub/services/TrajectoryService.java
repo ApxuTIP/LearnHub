@@ -6,7 +6,7 @@ import java.math.BigInteger;
 
 public class TrajectoryService {
     public BigInteger countNaive(int modules) {
-        return TrajectoryCounter.naive(modules);
+        return TrajectoryCounter.countNaive(modules);
     }
 
     public BigInteger countOptimized(int modules) {

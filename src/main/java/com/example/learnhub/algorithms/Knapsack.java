@@ -28,7 +28,8 @@ public final class Knapsack {
                 bestUsefulness[itemIndex][hours] = bestUsefulness[itemIndex - 1][hours];
                 if (course.getHours() <= hours) {
                     int usefulnessWithoutCourse = bestUsefulness[itemIndex - 1][hours];
-                    int usefulnessWithCourse = bestUsefulness[itemIndex - 1][hours - course.getHours()] + course.getBenefit();
+                    int usefulnessWithCourse = bestUsefulness[itemIndex - 1]
+                            [hours - course.getHours()] + course.getBenefit();
                     if (usefulnessWithCourse > usefulnessWithoutCourse) {
                         bestUsefulness[itemIndex][hours] = usefulnessWithCourse;
                     }

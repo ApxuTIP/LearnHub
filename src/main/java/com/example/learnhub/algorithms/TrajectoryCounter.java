@@ -8,15 +8,14 @@ public final class TrajectoryCounter {
     private TrajectoryCounter() {
     }
 
-    public static BigInteger naive(int modules) {
+    public static BigInteger countNaive(int modules) {
         if (modules < 0) {
             return BigInteger.ZERO;
         }
-
         if (modules == 0 || modules == 1) {
             return BigInteger.ONE;
         }
-        return naive(modules - 1).add(naive(modules - 2));
+        return countNaive(modules - 1).add(countNaive(modules - 2));
     }
 
     public static BigInteger countWithMemoization(int modules) {
@@ -29,11 +28,15 @@ public final class TrajectoryCounter {
         return computeWithMemoization(modules, memoizedValues);
     }
 
-    private static BigInteger computeWithMemoization(int modules, Map<Integer, BigInteger> memoizedValues) {
+    private static BigInteger computeWithMemoization(
+            int modules,
+            Map<Integer, BigInteger> memoizedValues) {
+
         BigInteger cachedValue = memoizedValues.get(modules);
         if (cachedValue != null) {
             return cachedValue;
         }
+
         BigInteger result = computeWithMemoization(modules - 1, memoizedValues)
                 .add(computeWithMemoization(modules - 2, memoizedValues));
         memoizedValues.put(modules, result);

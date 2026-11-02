@@ -20,6 +20,11 @@ public class RatingDemonstration {
     private static final int SHOW_LIMIT = 5;
     private static final int[] SORT_TABLE_SIZES = {100, 1_000, 10_000, 100_000};
 
+    private static final int TABLE_COLUMN_1 = 10;
+    private static final int TABLE_COLUMN_2 = 20;
+    private static final int TABLE_COLUMN_3 = 18;
+    private static final int TABLE_COLUMN_4 = 15;
+
     private final Scanner scanner;
 
     public RatingDemonstration(Scanner scanner) {
@@ -36,40 +41,46 @@ public class RatingDemonstration {
         printSortingComparisonTable();
 
         RatingService ratingService = new RatingService();
-        long rebuildMilliseconds = Timer.measureSilent(() -> ratingService.rebuild(students));
-        System.out.println("Построение рейтинга mergeSort на " + RATING_STUDENT_COUNT + ": " + rebuildMilliseconds + " мс");
+        long rebuildMilliseconds = Timer.measureSilent(
+                () -> ratingService.rebuild(students));
+        System.out.println(String.format("Построение рейтинга mergeSort на %d: %d мс",
+                RATING_STUDENT_COUNT, rebuildMilliseconds));
         System.out.println("Размер рейтинга: " + ratingService.size());
 
-        int minimumScore = InputValidator.readInt(scanner, "Введите нижнюю границу балла: ");
-        int maximumScore = InputValidator.readInt(scanner, "Введите верхнюю границу балла: ");
-
+        int minimumScore = InputValidator.readInt(scanner,
+                "Введите нижнюю границу балла: ");
+        int maximumScore = InputValidator.readInt(scanner,
+                "Введите верхнюю границу балла: ");
         if (minimumScore > maximumScore) {
             int temporary = minimumScore;
             minimumScore = maximumScore;
             maximumScore = temporary;
-            System.out.println("Границы были перепутаны, поменяли местами: [" + minimumScore + "; " + maximumScore + "]");
+            System.out.println(String.format("Границы были перепутаны, поменяли местами: [%d; %d]",
+                    minimumScore, maximumScore));
         }
-
         List<Student> range = ratingService.inScoreRange(minimumScore, maximumScore);
         System.out.println("Найдено студентов в диапазоне: " + range.size());
         int showCount = Math.min(SHOW_LIMIT, range.size());
-
         for (int index = 0; index < showCount; index++) {
             System.out.println("  " + range.get(index));
         }
 
-        int threshold = InputValidator.readInt(scanner, "Введите порог для поиска первого студента: ");
+        int threshold = InputValidator.readInt(scanner,
+                "Введите порог для поиска первого студента: ");
         Student firstStudent = ratingService.firstAtLeast(threshold);
         System.out.println("Первый студент с баллом >= " + threshold + ": " + firstStudent);
 
         if (!students.isEmpty()) {
             Student sample = students.get(0);
-            System.out.println("Место студента " + sample + " в рейтинге: " + ratingService.placeOf(sample));
+            System.out.println("Место студента " + sample + " в рейтинге: "
+                    + ratingService.placeOf(sample));
         }
     }
 
     private void printSortingComparisonTable() {
-        System.out.println("объём тип данных insertionSort mergeSort adaptiveSort");
+        System.out.println(String.format("%-" + TABLE_COLUMN_1 + "s%-" + TABLE_COLUMN_2
+                        + "s%-" + TABLE_COLUMN_3 + "s%-" + TABLE_COLUMN_4 + "s%s",
+                "объём", "тип данных", "insertionSort", "mergeSort", "adaptiveSort"));
 
         for (int size : SORT_TABLE_SIZES) {
             List<Integer> randomData = generateRandomList(size);
@@ -85,10 +96,9 @@ public class RatingDemonstration {
                     Sorter.adaptiveSort(new ArrayList<>(randomData),
                             new Comparators.IntegerAscending()));
 
-            System.out.println(" " + size + "случайные"
-                    + insertionRandomMilliseconds + " мс"
-                    + mergeRandomMilliseconds + " мс"
-                    + adaptiveRandomMilliseconds + " мс");
+            System.out.println(String.format("%-" + TABLE_COLUMN_1 + "d%-" + TABLE_COLUMN_2
+                            + "s%-" + TABLE_COLUMN_3 + "d%-" + TABLE_COLUMN_4 + "d%d",
+                    size, "случайные", insertionRandomMilliseconds, mergeRandomMilliseconds, adaptiveRandomMilliseconds));
 
             long insertionSortedMilliseconds = Timer.measureSilent(() ->
                     Sorter.insertionSort(new ArrayList<>(sortedData),
@@ -100,10 +110,9 @@ public class RatingDemonstration {
                     Sorter.adaptiveSort(new ArrayList<>(sortedData),
                             new Comparators.IntegerAscending()));
 
-            System.out.println(" " + size + "отсортированные"
-                    + insertionSortedMilliseconds + " мс"
-                    + mergeSortedMilliseconds + " мс"
-                    + adaptiveSortedMilliseconds + " мс");
+            System.out.println(String.format("%-" + TABLE_COLUMN_1 + "d%-" + TABLE_COLUMN_2
+                            + "s%-" + TABLE_COLUMN_3 + "d%-" + TABLE_COLUMN_4 + "d%d",
+                    size, "отсортированные", insertionSortedMilliseconds, mergeSortedMilliseconds, adaptiveSortedMilliseconds));
         }
     }
 

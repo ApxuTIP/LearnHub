@@ -12,6 +12,29 @@ import java.util.PriorityQueue;
 import java.util.Set;
 
 public class PrerequisiteService {
+    private static class VertexDistance implements Comparable<VertexDistance> {
+        private final int vertex;
+        private final int distance;
+
+        private VertexDistance(int vertex, int distance) {
+            this.vertex = vertex;
+            this.distance = distance;
+        }
+
+        private int getVertex() {
+            return vertex;
+        }
+
+        private int getDistance() {
+            return distance;
+        }
+
+        @Override
+        public int compareTo(VertexDistance otherPair) {
+            return Integer.compare(this.distance, otherPair.distance);
+        }
+    }
+
     private static final int WHITE = 0;
     private static final int GRAY = 1;
     private static final int BLACK = 2;
@@ -67,7 +90,6 @@ public class PrerequisiteService {
                 if (neighbors == null) {
                     continue;
                 }
-
                 for (int neighbor : neighbors) {
                     if (!visitedVertices.contains(neighbor)) {
                         visitedVertices.add(neighbor);
@@ -77,6 +99,19 @@ public class PrerequisiteService {
             }
         }
         return trackCount;
+    }
+
+    private Map<Integer, List<Integer>> buildUndirectedAdjacency() {
+        Map<Integer, List<Integer>> undirected = new HashMap<>();
+        for (int vertex : graph.getVertices()) {
+            undirected.computeIfAbsent(vertex, key -> new ArrayList<>());
+            for (Graph.Edge edge : graph.getNeighbors(vertex)) {
+                int destination = edge.getDestination();
+                undirected.computeIfAbsent(destination, key -> new ArrayList<>()).add(vertex);
+                undirected.get(vertex).add(destination);
+            }
+        }
+        return undirected;
     }
 
     public List<Integer> findCycle() {
@@ -89,17 +124,68 @@ public class PrerequisiteService {
         }
         for (int vertex : graph.getVertices()) {
             if (color.get(vertex) == WHITE && result.isEmpty()) {
-                result = dfsFindCycle(vertex, color, parent);
+                result = findCycleDepthFirst(vertex, color, parent);
             }
         }
         return result;
     }
 
+    private List<Integer> findCycleDepthFirst(int vertex,
+                                              Map<Integer, Integer> color,
+                                              Map<Integer, Integer> parent) {
+        color.put(vertex, GRAY);
+        List<Integer> cycle = new ArrayList<>();
+        for (Graph.Edge edge : graph.getNeighbors(vertex)) {
+            int nextVertex = edge.getDestination();
+            Integer nextColor = color.getOrDefault(nextVertex, WHITE);
+            if (nextColor == GRAY) {
+                cycle = buildCyclePath(vertex, nextVertex, parent);
+                break;
+            }
+            if (nextColor == WHITE) {
+                parent.put(nextVertex, vertex);
+                cycle = findCycleDepthFirst(nextVertex, color, parent);
+                if (!cycle.isEmpty()) {
+                    break;
+                }
+            }
+        }
+        color.put(vertex, BLACK);
+        return cycle;
+    }
+
+    private List<Integer> buildCyclePath(int fromVertex,
+                                         int toVertex,
+                                         Map<Integer, Integer> parent) {
+        List<Integer> path = new ArrayList<>();
+        path.add(toVertex);
+        int currentVertex = fromVertex;
+        while (currentVertex != toVertex) {
+            path.add(currentVertex);
+            Integer previousVertex = parent.get(currentVertex);
+            if (previousVertex == null) {
+                break;
+            }
+            currentVertex = previousVertex;
+        }
+        path.add(toVertex);
+
+        int leftIndex = 0;
+        int rightIndex = path.size() - 1;
+        while (leftIndex < rightIndex) {
+            Integer temporary = path.get(leftIndex);
+            path.set(leftIndex, path.get(rightIndex));
+            path.set(rightIndex, temporary);
+            leftIndex++;
+            rightIndex--;
+        }
+        return path;
+    }
+
     public Map<Integer, Integer> shortestHoursFrom(int sourceCourseId) {
-        Map<Integer, Integer> shortestDistances = new HashMap<>();
+        Map<Integer, Integer> distances = new HashMap<>();
         Set<Integer> settledVertices = new HashSet<>();
 
-        Map<Integer, Integer> distances = new HashMap<>();
         for (int vertex : graph.getVertices()) {
             distances.put(vertex, Integer.MAX_VALUE);
         }
@@ -130,102 +216,10 @@ public class PrerequisiteService {
                 }
             }
         }
-
-        for (Map.Entry<Integer, Integer> entry : distances.entrySet()) {
-            if (entry.getValue() != Integer.MAX_VALUE) {
-                shortestDistances.put(entry.getKey(), entry.getValue());
-            }
-        }
-        return shortestDistances;
+        return distances;
     }
 
     public Graph getGraph() {
         return graph;
-    }
-
-    private Map<Integer, List<Integer>> buildUndirectedAdjacency() {
-        Map<Integer, List<Integer>> undirected = new HashMap<>();
-        for (int vertex : graph.getVertices()) {
-            undirected.computeIfAbsent(vertex, key -> new ArrayList<>());
-            for (Graph.Edge edge : graph.getNeighbors(vertex)) {
-                int destination = edge.getDestination();
-                undirected.computeIfAbsent(destination, key -> new ArrayList<>()).add(vertex);
-                undirected.get(vertex).add(destination);
-            }
-        }
-        return undirected;
-    }
-
-    private List<Integer> dfsFindCycle(int vertex, Map<Integer, Integer> color, Map<Integer, Integer> parent) {
-        color.put(vertex, GRAY);
-        List<Integer> cycle = new ArrayList<>();
-        for (Graph.Edge edge : graph.getNeighbors(vertex)) {
-            int nextVertex = edge.getDestination();
-            Integer nextColor = color.getOrDefault(nextVertex, WHITE);
-            if (nextColor == GRAY) {
-                cycle = buildCyclePath(vertex, nextVertex, parent);
-                break;
-            }
-
-            if (nextColor == WHITE) {
-                parent.put(nextVertex, vertex);
-                cycle = dfsFindCycle(nextVertex, color, parent);
-                if (!cycle.isEmpty()) {
-                    break;
-                }
-            }
-        }
-        color.put(vertex, BLACK);
-        return cycle;
-    }
-
-    private List<Integer> buildCyclePath(int fromVertex, int toVertex, Map<Integer, Integer> parent) {
-        List<Integer> path = new ArrayList<>();
-        path.add(toVertex);
-        int currentVertex = fromVertex;
-        while (currentVertex != toVertex) {
-            path.add(currentVertex);
-            Integer previousVertex = parent.get(currentVertex);
-            if (previousVertex == null) {
-                break;
-            }
-            currentVertex = previousVertex;
-        }
-
-        path.add(toVertex);
-        int leftIndex = 0;
-        int rightIndex = path.size() - 1;
-
-        while (leftIndex < rightIndex) {
-            Integer temporary = path.get(leftIndex);
-            path.set(leftIndex, path.get(rightIndex));
-            path.set(rightIndex, temporary);
-            leftIndex++;
-            rightIndex--;
-        }
-        return path;
-    }
-
-    private static class VertexDistance implements Comparable<VertexDistance> {
-        private final int vertex;
-        private final int distance;
-
-        private VertexDistance(int vertex, int distance) {
-            this.vertex = vertex;
-            this.distance = distance;
-        }
-
-        private int getVertex() {
-            return vertex;
-        }
-
-        private int getDistance() {
-            return distance;
-        }
-
-        @Override
-        public int compareTo(VertexDistance otherPair) {
-            return Integer.compare(this.distance, otherPair.distance);
-        }
     }
 }

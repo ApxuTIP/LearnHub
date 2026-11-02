@@ -3,7 +3,7 @@ package com.example.learnhub.structures;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public class LinkedList<T> implements Iterable<T> {
+public class CustomLinkedList<T> implements Iterable<T> {
     private static class Node<T> {
         private T value;
         private Node<T> next;

@@ -1,6 +1,7 @@
 package com.example.learnhub.model;
 
 public class Lesson {
+
     private final int lessonId;
     private final String lessonTitle;
 
@@ -9,16 +10,11 @@ public class Lesson {
         this.lessonTitle = lessonTitle;
     }
 
-    public int getLessonId() {
-        return lessonId;
-    }
-
-    public String getLessonTitle() {
-        return lessonTitle;
-    }
+    public int getLessonId() { return lessonId; }
+    public String getLessonTitle() { return lessonTitle; }
 
     @Override
     public String toString() {
-        return "Lesson{lessonId=" + lessonId + ", lessonTitle='" + lessonTitle + "'}";
+        return String.format("Lesson{lessonId=%d, lessonTitle='%s'}", lessonId, lessonTitle);
     }
 }
